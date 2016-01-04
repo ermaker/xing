@@ -27,7 +27,11 @@ loop do
         logger.info { "Leverage: #{leverage}" }
       end
     end
+  end
 
+  sleep 30
+
+  if continue?
     begin
       inverse = Xing::API.tr(:t1901, shcode: '114800')['response']['price'].to_i
       logger.debug { "Inverse: #{inverse}" }
@@ -40,5 +44,5 @@ loop do
     logger.debug { 'Stopped. Passing' }
   end
 
-  sleep 60
+  sleep 30
 end
