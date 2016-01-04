@@ -20,20 +20,20 @@ end
 loop do
   if continue?
     begin
-      leverage = Xing::API.tr(:t1901, shcode: '122630')
-      logger.debug { "Leverage: #{leverage['response']['price']}" }
+      leverage = Xing::API.tr(:t1901, shcode: '122630')['response']['price']
+      logger.debug { "Leverage: #{leverage}" }
       if leverage < 9365
-        notify("Leverage: #{leverage['response']['price']}")
-        logger.info { "Leverage: #{leverage['response']['price']}" }
+        notify("Leverage: #{leverage}")
+        logger.info { "Leverage: #{leverage}" }
       end
     end
 
     begin
-      inverse = Xing::API.tr(:t1901, shcode: '114800')
-      logger.debug { "Inverse: #{inverse['response']['price']}" }
+      inverse = Xing::API.tr(:t1901, shcode: '114800')['response']['price']
+      logger.debug { "Inverse: #{inverse}" }
       if inverse > 8500
-        notify("Inverse: #{inverse['response']['price']}")
-        logger.info { "Inverse: #{inverse['response']['price']}" }
+        notify("Inverse: #{inverse}")
+        logger.info { "Inverse: #{inverse}" }
       end
     end
   else
