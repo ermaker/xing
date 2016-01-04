@@ -20,7 +20,7 @@ end
 loop do
   if continue?
     begin
-      leverage = Xing::API.tr(:t1901, shcode: '122630')['response']['price']
+      leverage = Xing::API.tr(:t1901, shcode: '122630')['response']['price'].to_i
       logger.debug { "Leverage: #{leverage}" }
       if leverage < 9365
         notify("Leverage: #{leverage}")
@@ -29,7 +29,7 @@ loop do
     end
 
     begin
-      inverse = Xing::API.tr(:t1901, shcode: '114800')['response']['price']
+      inverse = Xing::API.tr(:t1901, shcode: '114800')['response']['price'].to_i
       logger.debug { "Inverse: #{inverse}" }
       if inverse > 8500
         notify("Inverse: #{inverse}")
