@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+
+require 'dotenv'
+Dotenv.load
+require 'bundler/setup'
+require 'xing'
+require 'mshard'
+require 'logger'
+
+logger = Logger.new(STDOUT)
+
+def continue?
+  MShard::MShard.new.get(:notify) != 'stop'
+end
+
+def notify contents
+  MShard::MShard.new.set_safe(pushbullet: true, type: :note, title: contents)
+end
+
+loop do
+  if continue?
+    begin
+      leverage = Xing::API.tr(:t1901, shcode: '122630')
+      logger.debug { "Leverage: #{leverage['response']['price']}" }
+      notify("Leverage: #{leverage['response']['price']}")
+    end
+
+    begin
+      inverse = Xing::API.tr(:t1901, shcode: '114800')
+      logger.debug { "Inverse: #{inverse['response']['price']}" }
+      notify("Inverse: #{inverse['response']['price']}")
+    end
+  else
+    logger.debug { 'Stopped. Passing' }
+  end
+
+  sleep 60
+end
