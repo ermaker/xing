@@ -19,6 +19,12 @@ module Xing
       end
 
       def tr(tr_name, **args)
+        case args[:shcode]
+        when :leverage
+          args[:shcode] = '122630'
+        when :inverse
+          args[:shcode] = '114800'
+        end
         json(base + "/tr/#{tr_name}", args)
       end
     end
