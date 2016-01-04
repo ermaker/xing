@@ -1,11 +1,7 @@
 require 'spec_helper'
 
-describe Xing do
+RSpec.describe Xing do
   it 'has a version number' do
     expect(Xing::VERSION).not_to be nil
-  end
-
-  it 'does something useful' do
-    expect(false).to eq(true)
   end
 end
