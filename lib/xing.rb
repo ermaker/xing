@@ -1,4 +1,4 @@
-require "xing/version"
+require 'xing/version'
 
 module Xing
   # Your code goes here...
