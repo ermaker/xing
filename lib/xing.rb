@@ -1,5 +1,5 @@
 require 'xing/version'
 
 module Xing
-  # Your code goes here...
+  autoload :API, 'xing/api'
 end
