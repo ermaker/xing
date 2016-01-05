@@ -13,7 +13,7 @@ def continue?
   MShard::MShard.new.get(:notify) != 'stop'
 end
 
-def notify contents
+def notify(contents)
   MShard::MShard.new.set_safe(pushbullet: true, type: :note, title: contents)
 end
 
