@@ -22,7 +22,7 @@ loop do
     begin
       leverage = Xing::API.tr(:t1901, shcode: '122630')['response']['price'].to_i
       logger.debug { "Leverage: #{leverage}" }
-      if leverage < 9365
+      if leverage < 9500
         notify("Leverage: #{leverage}")
         logger.info { "Leverage: #{leverage}" }
       end
