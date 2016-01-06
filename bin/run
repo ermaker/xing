@@ -7,6 +7,11 @@ require 'xing'
 require 'mshard'
 require 'logger'
 
+at_exit do
+  require 'English'
+  MShard::MShard.new.set_error($ERROR_INFO)
+end
+
 STDOUT.sync = true
 LOGGER = Logger.new(STDOUT)
 
