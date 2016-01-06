@@ -15,6 +15,12 @@ end
 STDOUT.sync = true
 LOGGER = Logger.new(STDOUT)
 
+at_exit do
+  require 'English'
+  LOGGER.fatal { "#{$ERROR_INFO}" }
+  LOGGER.fatal { "#{$ERROR_INFO.backtrace.join("\n")}" }
+end
+
 def continue?
   MShard::MShard.new.get(:notify).tap do |notify|
     LOGGER.debug { "Notify: #{notify}" }
@@ -31,7 +37,7 @@ loop do
   if continue?
     begin
       leverage =
-        Xing::API.tr(:t1901, shcode: '122630')['response']['price'].to_i
+        Xing::API.tr(:t1901, shcode: :leverage)['response']['price'].to_i
       LOGGER.debug { "Leverage: #{leverage}" }
       if leverage < 9300 || leverage > 10_000
         notify("Leverage: #{leverage}")
@@ -45,7 +51,7 @@ loop do
   if continue?
     begin
       inverse =
-        Xing::API.tr(:t1901, shcode: '114800')['response']['price'].to_i
+        Xing::API.tr(:t1901, shcode: :inverse)['response']['price'].to_i
       LOGGER.debug { "Inverse: #{inverse}" }
       if inverse > 8550
         notify("Inverse: #{inverse}")
