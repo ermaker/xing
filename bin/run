@@ -7,42 +7,49 @@ require 'xing'
 require 'mshard'
 require 'logger'
 
-logger = Logger.new(STDOUT)
+STDOUT.sync = true
+LOGGER = Logger.new(STDOUT)
 
 def continue?
-  MShard::MShard.new.get(:notify) != 'stop'
+  MShard::MShard.new.get(:notify).tap do |notify|
+    LOGGER.debug { "Notify: #{notify}" }
+  end != 'stop'
 end
 
 def notify(contents)
   MShard::MShard.new.set_safe(pushbullet: true, type: :note, title: contents)
 end
 
+SLEEP = 10
+
 loop do
   if continue?
     begin
-      leverage = Xing::API.tr(:t1901, shcode: '122630')['response']['price'].to_i
-      logger.debug { "Leverage: #{leverage}" }
-      if leverage < 9500
+      leverage =
+        Xing::API.tr(:t1901, shcode: '122630')['response']['price'].to_i
+      LOGGER.debug { "Leverage: #{leverage}" }
+      if leverage < 9300 || leverage > 10_000
         notify("Leverage: #{leverage}")
-        logger.info { "Leverage: #{leverage}" }
+        LOGGER.info { "Leverage: #{leverage}" }
       end
     end
   end
 
-  sleep 30
+  sleep SLEEP
 
   if continue?
     begin
-      inverse = Xing::API.tr(:t1901, shcode: '114800')['response']['price'].to_i
-      logger.debug { "Inverse: #{inverse}" }
-      if inverse > 8500
+      inverse =
+        Xing::API.tr(:t1901, shcode: '114800')['response']['price'].to_i
+      LOGGER.debug { "Inverse: #{inverse}" }
+      if inverse > 8550
         notify("Inverse: #{inverse}")
-        logger.info { "Inverse: #{inverse}" }
+        LOGGER.info { "Inverse: #{inverse}" }
       end
     end
   else
-    logger.debug { 'Stopped. Passing' }
+    LOGGER.debug { 'Stopped. Passing' }
   end
 
-  sleep 30
+  sleep SLEEP
 end
