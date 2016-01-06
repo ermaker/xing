@@ -31,13 +31,24 @@ def notify(contents)
   MShard::MShard.new.set_safe(pushbullet: true, type: :note, title: contents)
 end
 
+def t1901(shcode, delay: 5)
+  loop do
+    retval = Xing::API.tr(:t1901, shcode: shcode)
+    begin
+      return retval['response']['price'].to_i
+    rescue NoMethodError
+      LOGGER.error { "Retry: #{retval['message']}" }
+      sleep delay
+    end
+  end
+end
+
 SLEEP = 10
 
 loop do
   if continue?
     begin
-      leverage =
-        Xing::API.tr(:t1901, shcode: :leverage)['response']['price'].to_i
+      leverage = t1901(:leverage)
       LOGGER.debug { "Leverage: #{leverage}" }
       if leverage < 9300 || leverage > 10_000
         notify("Leverage: #{leverage}")
@@ -50,8 +61,7 @@ loop do
 
   if continue?
     begin
-      inverse =
-        Xing::API.tr(:t1901, shcode: :inverse)['response']['price'].to_i
+      inverse = t1901(:inverse)
       LOGGER.debug { "Inverse: #{inverse}" }
       if inverse > 8550
         notify("Inverse: #{inverse}")
