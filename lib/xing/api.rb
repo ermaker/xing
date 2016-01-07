@@ -38,7 +38,7 @@ module Xing
       end
 
       TR_WHITE_CODE = [
-        # '00000'
+        '00000'
       ]
 
       def tr(tr_name, **args)
