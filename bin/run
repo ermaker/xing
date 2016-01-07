@@ -50,7 +50,7 @@ loop do
     begin
       leverage = t1901(:leverage)
       LOGGER.debug { "Leverage: #{leverage}" }
-      if leverage < 9300 || leverage > 10_000
+      if leverage < 9150 || leverage > 10_000
         notify("Leverage: #{leverage}")
         LOGGER.info { "Leverage: #{leverage}" }
       end
@@ -63,7 +63,7 @@ loop do
     begin
       inverse = t1901(:inverse)
       LOGGER.debug { "Inverse: #{inverse}" }
-      if inverse > 8550
+      if inverse > 8600
         notify("Inverse: #{inverse}")
         LOGGER.info { "Inverse: #{inverse}" }
       end
