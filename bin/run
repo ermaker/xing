@@ -43,6 +43,31 @@ def t1901(shcode, delay: 5)
   end
 end
 
+BOUGHT= 'bought'
+
+def trade(shcode, sell_or_buy, qty, record_id)
+  if yield
+    LOGGER.debug do
+      "Good condition. #{shcode}, #{sell_or_buy}, #{qty}, #{record_id}"
+    end
+    if MShard::MShard.new.get(record_id) == BOUGHT
+      LOGGER.debug { "Already traded." }
+    else
+      LOGGER.debug { "Try trade." }
+      retval = Xing::API.tr(
+        :CSPAT00600,
+        pass: ENV['ACCOUNT_PASS'],
+        shcode: shcode,
+        qty: qty,
+        sell_or_buy: sell_or_buy
+      )
+      LOGGER.debug { "retval: #{retval}" }
+      MShard::MShard.new.set_safe(id: record_id, contents: BOUGHT)
+      LOGGER.info { "Finished trade." }
+    end
+  end
+end
+
 SLEEP = 10
 
 loop do
@@ -50,9 +75,16 @@ loop do
     begin
       leverage = t1901(:leverage)
       LOGGER.debug { "Leverage: #{leverage}" }
-      if leverage < 9150 || leverage > 10_000
+      if leverage < 9050 || leverage > 10_000
         notify("Leverage: #{leverage}")
         LOGGER.info { "Leverage: #{leverage}" }
+      end
+
+      trade(:leverage, :buy, 1, :xing_test_9050) do
+        leverage < 9050
+      end
+      trade(:leverage, :buy, 4, :xing_test_9000) do
+        leverage < 9000
       end
     end
   end
