@@ -35,6 +35,8 @@ module Xing
       def log_if_unexpected(retval, white_code)
         return if white_code.include? retval['message'][/^\[(.+?)\]/, 1]
         logger.warn { "Check: #{retval['message']}" }
+      rescue NoMethodError
+        logger.warn { "Check: #{retval}" }
       end
 
       TR_WHITE_CODE = [
