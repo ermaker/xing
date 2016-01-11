@@ -11,4 +11,4 @@ RUN bundle install --without=development
 
 COPY . /usr/src/app
 
-CMD ["bundle", "exec", "bin/run"]
+CMD ["bin/run"]
