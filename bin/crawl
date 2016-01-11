@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'dotenv'
+Dotenv.load
+require 'xing'
+require 'logger'
+
+STDOUT.sync = true
+LOGGER = Logger.new(STDOUT)
+
+retval = Xing::API.tr(:t1903, shcode: :leverage)
+sleep 2
+list = 10.times.flat_map do
+  retval['response'][1].tap do
+    retval = Xing::API.tr(:t1903, is_continue: true, shcode: :leverage, date: retval['response'][0]['date'])
+    sleep 2
+  end
+end
+puts list.map { |e| "#{e['date']}: #{e['price']} #{e['sign']} #{e['change']} #{e['volume']}" }
+puts list.map { |e| e.inspect }
