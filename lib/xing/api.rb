@@ -33,8 +33,12 @@ module Xing
       end
 
       def log_if_unexpected(retval, white_code)
-        return if white_code.include? retval['message'][/^\[(.+?)\]/, 1]
-        logger.warn { "Check: #{retval['message']}" }
+        if retval['message'].size > 1
+          logger.info { "Multiple messages: #{retval['message'].join(', ')}" }
+        end
+        message = retval['message'].last
+        return if white_code.include? message[/^\[(.+?)\]/, 1]
+        logger.warn { "Check: #{message}" }
       rescue NoMethodError
         logger.warn { "Check: #{retval}" }
       end

@@ -35,12 +35,15 @@ def t1901(shcode, delay: 5) # rubocop:disable Metrics/MethodLength
   loop do
     retval = Xing::API.tr(:t1901, shcode: shcode)
     begin
-      price = retval['response']['price'].to_i
+      if retval['response'].size > 1
+        LOGGER.warn { "Multiple response: #{retval}" }
+      end
+      price = retval['response'].last['price'].to_i
       return price unless price.zero?
       LOGGER.error { "Price is zero. retval: #{retval}" }
     rescue NoMethodError # rubocop:disable Lint/HandleExceptions
     end
-    LOGGER.error { "Retry: #{retval['message']}" }
+    LOGGER.error { "Retry: #{retval['message'].join(', ')}" }
     sleep delay
   end
 end
