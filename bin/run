@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
+require 'bundler/setup'
 require 'dotenv'
 Dotenv.load
-require 'bundler/setup'
 require 'xing'
 require 'mshard'
 require 'logger'
