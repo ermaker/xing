@@ -37,7 +37,7 @@ module Xing
         logger.info { "Multiple messages: #{retval['message'].join(', ')}" }
       end
 
-      def log_if_unexpected_code(retval)
+      def log_if_unexpected_code(retval, white_code)
         message = retval['message'].last
         return if white_code.include? message[/^\[(.+?)\]/, 1]
         logger.warn { "Check: #{message}" }
