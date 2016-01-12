@@ -22,9 +22,7 @@ at_exit do
 end
 
 def continue?
-  MShard::MShard.new.get(:notify).tap do |notify|
-    LOGGER.debug { "Notify: #{notify}" }
-  end != 'stop'
+  MShard::MShard.new.get(:notify) != 'stop'
 end
 
 def notify(contents)
@@ -76,7 +74,7 @@ def trade(shcode, sell_or_buy, qty, record_id) # rubocop:disable Metrics/MethodL
   end
 end
 
-SLEEP = 10
+SLEEP = 4
 
 loop do
   if continue?
@@ -98,6 +96,8 @@ loop do
         end
       end
     end
+  else
+    LOGGER.debug { 'Stopped. Passing' }
   end
 
   sleep SLEEP
