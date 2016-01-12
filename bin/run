@@ -75,7 +75,7 @@ def trade(shcode, sell_or_buy, qty, record_id) # rubocop:disable Metrics/MethodL
   end
 end
 
-SLEEP = 4
+SLEEP = 8
 
 loop do
   if continue?
@@ -91,7 +91,7 @@ loop do
         LOGGER.info { "Leverage: #{leverage}" }
       end
 
-      base.step(base - 100, -10) do |price|
+      base.step(base - 200, -10) do |price|
         trade(:leverage, :buy, 1, :"xing_test_#{price}") do
           leverage < price
         end
