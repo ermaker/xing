@@ -47,7 +47,7 @@ module Xing
 
       def log_if_unexpected(retval, white_code)
         log_if_multiple_messages(retval)
-        log_if_multiple_messages(retval, white_code)
+        log_if_unexpected_code(retval, white_code)
       end
 
       TR_WHITE_CODE = [
