@@ -41,13 +41,13 @@ module Xing
         message = retval['message'].last
         return if white_code.include? message[/^\[(.+?)\]/, 1]
         logger.warn { "Check: #{message}" }
-      rescue NoMethodError
-        logger.warn { "Check: #{retval}" }
       end
 
       def log_if_unexpected(retval, white_code)
         log_if_multiple_messages(retval)
         log_if_unexpected_code(retval, white_code)
+      rescue NoMethodError
+        logger.warn { "Check: #{retval}" }
       end
 
       TR_WHITE_CODE = %w(00000 00040)
