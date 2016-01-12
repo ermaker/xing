@@ -50,10 +50,7 @@ module Xing
         log_if_unexpected_code(retval, white_code)
       end
 
-      TR_WHITE_CODE = [
-        '00000',
-        '00040'
-      ]
+      TR_WHITE_CODE = %w(00000 00040)
 
       def tr(tr_name, **args)
         manipulate_shcode(args)
