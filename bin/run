@@ -53,8 +53,8 @@ BOUGHT = 'bought'
 
 def trade(shcode, sell_or_buy, qty, record_id) # rubocop:disable Metrics/MethodLength, Metrics/LineLength
   return unless yield
-  LOGGER.debug do
-    "Good condition: #{shcode}, #{sell_or_buy}, #{qty}, #{record_id}"
+  LOGGER.info do
+    "Satisfied: #{shcode}, #{sell_or_buy}, #{qty}, #{record_id}"
   end
   if MShard::MShard.new.get(record_id) == BOUGHT
     LOGGER.debug { 'Already traded.' }
