@@ -65,6 +65,7 @@ def trade(shcode, sell_or_buy, qty, record_id) # rubocop:disable Metrics/MethodL
       pass: ENV['ACCOUNT_PASS'],
       shcode: shcode, qty: qty, sell_or_buy: sell_or_buy)
     LOGGER.debug { "retval: #{retval}" }
+    LOGGER.info { "Trade message: #{retval['message'].join(', ')}" }
     MShard::MShard.new.set_safe(
       id: record_id, contents: BOUGHT,
       pushbullet: true, type: :note,
