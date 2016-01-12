@@ -13,9 +13,14 @@ retval = Xing::API.tr(:t1903, shcode: :leverage)
 sleep 2
 list = 10.times.flat_map do
   retval['response'][1].tap do
-    retval = Xing::API.tr(:t1903, is_continue: true, shcode: :leverage, date: retval['response'][0]['date'])
+    retval = Xing::API.tr(
+      :t1903,
+      is_continue: true, shcode: :leverage, date: retval['response'][0]['date'])
     sleep 2
   end
 end
-puts list.map { |e| "#{e['date']}: #{e['price']} #{e['sign']} #{e['change']} #{e['volume']}" }
-puts list.map { |e| e.inspect }
+puts(
+  list.map do |e|
+    "#{e['date']}: #{e['price']} #{e['sign']} #{e['change']} #{e['volume']}"
+  end)
+puts list.map(&:inspect)

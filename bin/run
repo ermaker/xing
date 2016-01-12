@@ -31,13 +31,16 @@ def notify(contents)
   MShard::MShard.new.set_safe(pushbullet: true, type: :note, title: contents)
 end
 
+def log_if_multiple_messages(retval)
+  return unless retval['response'].size > 1
+  LOGGER.warn { "Multiple response: #{retval}" }
+end
+
 def t1901(shcode, delay: 5) # rubocop:disable Metrics/MethodLength
   loop do
     retval = Xing::API.tr(:t1901, shcode: shcode)
     begin
-      if retval['response'].size > 1
-        LOGGER.warn { "Multiple response: #{retval}" }
-      end
+      log_if_multiple_messages(retval)
       price = retval['response'].last['price'].to_i
       return price unless price.zero?
       LOGGER.error { "Price is zero. retval: #{retval}" }
