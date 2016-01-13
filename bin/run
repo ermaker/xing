@@ -9,7 +9,7 @@ require 'logger'
 
 at_exit do
   require 'English'
-  MShard::MShard.new.set_error($ERROR_INFO)
+  MShard::MShard.new.set_error($ERROR_INFO) if $ERROR_INFO
 end
 
 STDOUT.sync = true
@@ -17,8 +17,10 @@ LOGGER = Logger.new(STDOUT)
 
 at_exit do
   require 'English'
-  LOGGER.fatal { "#{$ERROR_INFO}" }
-  LOGGER.fatal { "#{$ERROR_INFO.backtrace.join("\n")}" }
+  if $ERROR_INFO
+    LOGGER.fatal { "#{$ERROR_INFO}" }
+    LOGGER.fatal { "#{$ERROR_INFO.backtrace.join(' | ')}" }
+  end
 end
 
 def continue?
@@ -51,28 +53,39 @@ end
 
 BOUGHT = 'bought'
 
-def trade(shcode, sell_or_buy, qty, record_id) # rubocop:disable Metrics/MethodLength, Metrics/LineLength
+def traded?(record_id)
+  return false unless MShard::MShard.new.get(record_id) == BOUGHT
+  LOGGER.debug { 'Already traded.' }
+  true
+end
+
+def trade_(shcode, sell_or_buy, qty)
+  LOGGER.debug { 'Try trade.' }
+  retval = Xing::API.tr(
+    :CSPAT00600,
+    pass: ENV['ACCOUNT_PASS'],
+    shcode: shcode, qty: qty, sell_or_buy: sell_or_buy)
+  LOGGER.debug { "retval: #{retval}" }
+  LOGGER.info { "Trade message: #{retval['message'].join(', ')}" }
+end
+
+def write_traded(shcode, sell_or_buy, qty, record_id)
+  MShard::MShard.new.set_safe(
+    id: record_id, contents: BOUGHT,
+    pushbullet: true, type: :note,
+    title: "#{shcode}] #{sell_or_buy} #{qty} (#{record_id})"
+  )
+  LOGGER.info { 'Finished trade.' }
+end
+
+def trade(shcode, sell_or_buy, qty, record_id)
   return unless yield
   LOGGER.info do
     "Satisfied: #{shcode}, #{sell_or_buy}, #{qty}, #{record_id}"
   end
-  if MShard::MShard.new.get(record_id) == BOUGHT
-    LOGGER.debug { 'Already traded.' }
-  else
-    LOGGER.debug { 'Try trade.' }
-    retval = Xing::API.tr(
-      :CSPAT00600,
-      pass: ENV['ACCOUNT_PASS'],
-      shcode: shcode, qty: qty, sell_or_buy: sell_or_buy)
-    LOGGER.debug { "retval: #{retval}" }
-    LOGGER.info { "Trade message: #{retval['message'].join(', ')}" }
-    MShard::MShard.new.set_safe(
-      id: record_id, contents: BOUGHT,
-      pushbullet: true, type: :note,
-      title: "#{shcode}] #{sell_or_buy} #{qty} (#{record_id})"
-    )
-    LOGGER.info { 'Finished trade.' }
-  end
+  return if traded?(record_id)
+  trade_(shcode, sell_or_buy, qty)
+  write_traded(shcode, sell_or_buy, qty, record_id)
 end
 
 SLEEP = 8
