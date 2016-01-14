@@ -80,7 +80,7 @@ end
 
 def trade(shcode, sell_or_buy, qty, record_id)
   return unless yield
-  LOGGER.info do
+  LOGGER.debug do
     "Satisfied: #{shcode}, #{sell_or_buy}, #{qty}, #{record_id}"
   end
   return if traded?(record_id)
