@@ -96,7 +96,7 @@ loop do
       leverage = t1901(:leverage)
       LOGGER.debug { "Leverage: #{leverage}" }
 
-      base = 9065
+      base = 8885
 
       # if leverage < base || leverage > 10_000
       if leverage > 10_000
