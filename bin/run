@@ -96,15 +96,14 @@ loop do
       leverage = t1901(:leverage)
       LOGGER.debug { "Leverage: #{leverage}" }
 
-      base = 8885
-
-      # if leverage < base || leverage > 10_000
       if leverage > 10_000
         notify("Leverage: #{leverage}")
         LOGGER.info { "Leverage: #{leverage}" }
       end
 
-      base.step(base - 200, -10) do |price|
+      base = 8615
+
+      base.step(base - 200, -20) do |price|
         trade(:leverage, :buy, 1, :"xing_test_#{price}") do
           leverage < price
         end
@@ -120,10 +119,20 @@ loop do
     begin
       inverse = t1901(:inverse)
       LOGGER.debug { "Inverse: #{inverse}" }
-      if inverse > 9000
-        notify("Inverse: #{inverse}")
-        LOGGER.info { "Inverse: #{inverse}" }
-      end
+      # if inverse > 9000
+      #   notify("Inverse: #{inverse}")
+      #   LOGGER.info { "Inverse: #{inverse}" }
+      # end
+
+      # price = 8850
+      # trade(:inverse, :sell, 5, :"xing_test2_#{price}") do
+      #   inverse > price
+      # end
+
+      # price = 8790
+      # trade(:inverse, :sell, 5, :"xing_test2_#{price}") do
+      #   inverse < price
+      # end
     end
   else
     LOGGER.debug { 'Stopped. Passing' }
