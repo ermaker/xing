@@ -88,9 +88,20 @@ def trade(shcode, sell_or_buy, qty, record_id)
   write_traded(shcode, sell_or_buy, qty, record_id)
 end
 
+def in_time?
+  Time.now < Time.parse('2016-01-30 17:00:00 +0900') &&
+    Time.parse('2016-01-30 08:30:00 +0900') < Time.now
+end
+
 SLEEP = 8
 
 loop do
+  if in_time?
+    LOGGER.debug { 'in_time' }
+    sleep SLEEP * 10
+    redo
+  end
+
   if continue?
     begin
       leverage = t1901(:leverage)
@@ -101,10 +112,10 @@ loop do
         LOGGER.info { "Leverage: #{leverage}" }
       end
 
-      base = 8615
+      base = 9000
 
-      base.step(base - 200, -20) do |price|
-        trade(:leverage, :buy, 1, :"xing_test_#{price}") do
+      base.step(base - 800, -10) do |price|
+        trade(:leverage, :buy, 1, :"xing_test2_#{price}") do
           leverage < price
         end
       end
@@ -124,13 +135,15 @@ loop do
       #   LOGGER.info { "Inverse: #{inverse}" }
       # end
 
-      # price = 8850
-      # trade(:inverse, :sell, 5, :"xing_test2_#{price}") do
+      # check = :xing_test2_test2
+
+      # price = 8660
+      # trade(:inverse, :sell, 1, check) do
       #   inverse > price
       # end
 
-      # price = 8790
-      # trade(:inverse, :sell, 5, :"xing_test2_#{price}") do
+      # price = 8550
+      # trade(:inverse, :sell, 1, check) do
       #   inverse < price
       # end
     end
