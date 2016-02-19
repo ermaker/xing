@@ -112,11 +112,19 @@ loop do
         LOGGER.info { "Leverage: #{leverage}" }
       end
 
-      base = 8920
+      # base = 8920
 
-      base.step(base - 800, -10) do |price|
-        trade(:leverage, :buy, 1, :"xing_test2_#{price}") do
-          leverage < price
+      # base.step(base - 800, -10) do |price|
+      #   trade(:leverage, :buy, 1, :"xing_test2_#{price}") do
+      #     leverage < price
+      #   end
+      # end
+
+      base = 9350
+
+      base.step(base + 500, 10) do |price|
+        trade(:leverage, :sell, 1, :"xing_leverage_sell_#{price}") do
+          leverage > price
         end
       end
     end
