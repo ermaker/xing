@@ -55,7 +55,7 @@ BOUGHT = 'bought'
 
 def traded?(record_id)
   return false unless MShard::MShard.new.get(record_id) == BOUGHT
-  LOGGER.debug { 'Already traded.' }
+  # LOGGER.debug { 'Already traded.' }
   true
 end
 
@@ -75,14 +75,14 @@ def write_traded(shcode, sell_or_buy, qty, record_id)
     pushbullet: true, type: :note,
     title: "#{shcode}] #{sell_or_buy} #{qty} (#{record_id})"
   )
-  LOGGER.info { 'Finished trade.' }
+  LOGGER.debug { 'Finished trade.' }
 end
 
 def trade(shcode, sell_or_buy, qty, record_id)
   return unless yield
-  LOGGER.debug do
-    "Satisfied: #{shcode}, #{sell_or_buy}, #{qty}, #{record_id}"
-  end
+  # LOGGER.debug do
+  #   "Satisfied: #{shcode}, #{sell_or_buy}, #{qty}, #{record_id}"
+  # end
   return if traded?(record_id)
   trade_(shcode, sell_or_buy, qty)
   write_traded(shcode, sell_or_buy, qty, record_id)
