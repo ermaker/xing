@@ -34,7 +34,7 @@ module Xing
 
       def log_if_multiple_messages(retval)
         return unless retval['message'].size > 1
-        logger.info { "Multiple messages: #{retval['message'].join(', ')}" }
+        logger.debug { "Multiple messages: #{retval['message'].join(', ')}" }
       end
 
       def log_if_unexpected_code(retval, white_code)
