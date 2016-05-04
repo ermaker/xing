@@ -93,7 +93,7 @@ def in_time?
     Time.parse('2016-01-30 08:30:00 +0900') < Time.now
 end
 
-SLEEP = 8
+SLEEP = 4
 
 loop do
   if in_time?
@@ -102,58 +102,58 @@ loop do
     redo
   end
 
-  if continue?
-    begin
-      leverage = t1901(:leverage)
-      LOGGER.debug { "Leverage: #{leverage}" }
+  # if continue?
+  #   begin
+  #     leverage = t1901(:leverage)
+  #     LOGGER.debug { "Leverage: #{leverage}" }
 
-      if leverage > 10_000
-        notify("Leverage: #{leverage}")
-        LOGGER.info { "Leverage: #{leverage}" }
-      end
+  #     # if leverage > 10_000
+  #     #   notify("Leverage: #{leverage}")
+  #     #   LOGGER.info { "Leverage: #{leverage}" }
+  #     # end
 
-      # base = 8920
+  #     # base = 8920
 
-      # base.step(base - 800, -10) do |price|
-      #   trade(:leverage, :buy, 1, :"xing_test2_#{price}") do
-      #     leverage < price
-      #   end
-      # end
+  #     # base.step(base - 800, -10) do |price|
+  #     #   trade(:leverage, :buy, 1, :"xing_test2_#{price}") do
+  #     #     leverage < price
+  #     #   end
+  #     # end
 
-      base = 9350
+  #     # base = 10250
 
-      base.step(base + 500, 10) do |price|
-        trade(:leverage, :sell, 1, :"xing_leverage_sell_#{price}") do
-          leverage > price
-        end
-      end
-    end
-  else
-    LOGGER.debug { 'Stopped. Passing' }
-  end
-
-  sleep SLEEP
+  #     # base.step(base + 500, 10) do |price|
+  #     #   trade(:leverage, :sell, 1, :"#{price}_lev_sell") do
+  #     #     leverage > price
+  #     #   end
+  #     # end
+  #   end
+  # else
+  #   LOGGER.debug { 'Stopped. Passing' }
+  # end
+  #
+  # sleep SLEEP
 
   if continue?
     begin
       inverse = t1901(:inverse)
       LOGGER.debug { "Inverse: #{inverse}" }
-      # if inverse > 9000
-      #   notify("Inverse: #{inverse}")
-      #   LOGGER.info { "Inverse: #{inverse}" }
-      # end
 
-      # check = :xing_test2_test2
+      base = 8130
 
-      # price = 8660
-      # trade(:inverse, :sell, 1, check) do
-      #   inverse > price
-      # end
+      base.step(base - 500, -5) do |price|
+        trade(:inverse, :buy, 75, :"#{price}_inv_buy_9") do
+          inverse < price
+        end
+      end
 
-      # price = 8550
-      # trade(:inverse, :sell, 1, check) do
-      #   inverse < price
-      # end
+      base = 8200
+
+      base.step(base + 500, 5) do |price|
+        trade(:inverse, :sell, 10, :"#{price}_inv_sell_0") do
+          inverse > price
+        end
+      end
     end
   else
     LOGGER.debug { 'Stopped. Passing' }
