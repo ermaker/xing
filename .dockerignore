@@ -1,12 +1,13 @@
-/.git/
-/.bundle/
-/.yardoc
-/_yardoc/
-/coverage/
-/doc/
-/pkg/
-/spec/reports/
-/tmp/
+.git/
+.bundle/
+.yardoc
+_yardoc/
+coverage/
+doc/
+pkg/
+spec/reports/
+tmp/
 
-/spec/examples.txt
+spec/examples.txt
 .env
+Gemfile.lock
