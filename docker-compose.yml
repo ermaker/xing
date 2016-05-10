@@ -1,4 +1,6 @@
 xing:
   build: .
   env_file: .env
+  environment:
+    - constraint:node==stock
   restart: always
