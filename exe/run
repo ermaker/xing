@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 
-require 'bundler/setup'
 require 'dotenv'
 Dotenv.load
 require 'xing'
 require 'mshard'
+require 'time'
 require 'logger'
 
 at_exit do
