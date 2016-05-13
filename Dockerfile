@@ -1,6 +1,9 @@
 FROM ruby
 
+RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
+CMD ["run"]
+
 COPY Gemfile .
 COPY xing.gemspec .
 RUN mkdir -p lib/xing
@@ -10,4 +13,3 @@ RUN bundle install --without=development
 COPY . .
 RUN rake install:local
 
-CMD ["run"]
