@@ -139,18 +139,18 @@ loop do
       inverse = t1901(:inverse)
       LOGGER.debug { "Inverse: #{inverse}" }
 
-      base = 8190
+      base = 8235
 
       base.step(base - 500, -5) do |price|
-        trade(:inverse, :buy, 10, :"#{price}_inv_buy_11") do
+        trade(:inverse, :buy, 25, :"#{price}_inv_buy_13") do
           inverse < price
         end
       end
 
-      base = 8200
+      base = 8250
 
       base.step(base + 500, 5) do |price|
-        trade(:inverse, :sell, 10, :"#{price}_inv_sell_0") do
+        trade(:inverse, :sell, 20, :"#{price}_inv_sell_1") do
           inverse > price
         end
       end
