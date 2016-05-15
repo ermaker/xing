@@ -2,6 +2,6 @@ xing:
   build: .
   env_file: .env
   environment:
-    - constraint:node==stock
+    - constraint:node==stable
     - MSHARD_URI=$MSHARD_URI
   restart: always
