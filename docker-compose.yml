@@ -3,4 +3,5 @@ xing:
   env_file: .env
   environment:
     - constraint:node==stock
+    - MSHARD_URI=$MSHARD_URI
   restart: always
