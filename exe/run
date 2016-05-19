@@ -6,20 +6,16 @@ require 'xing'
 require 'mshard'
 require 'time'
 require 'logger'
-
-at_exit do
-  require 'English'
-  MShard::MShard.new.set_error($ERROR_INFO) if $ERROR_INFO
-end
+require 'English'
 
 STDOUT.sync = true
 LOGGER = Logger.new(STDOUT)
 
 at_exit do
-  require 'English'
-  if $ERROR_INFO
-    LOGGER.fatal { "#{$ERROR_INFO}" }
-    LOGGER.fatal { "#{$ERROR_INFO.backtrace.join(' | ')}" }
+  if error_info = $ERROR_INFO
+    LOGGER.fatal { "#{error_info}" }
+    LOGGER.fatal { "#{error_info.backtrace.join(' | ')}" }
+    MShard::MShard.new.set_error(error_info)
   end
 end
 
