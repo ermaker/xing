@@ -42,7 +42,7 @@ def t1901(shcode, delay: 5) # rubocop:disable Metrics/MethodLength
       LOGGER.error { "Price is zero. retval: #{retval}" }
     rescue NoMethodError # rubocop:disable Lint/HandleExceptions
     end
-    LOGGER.error { "Retry: #{retval['message'].join(', ')}" }
+    LOGGER.error { "Retry: #{retval['message']&.join(' ,') || retval}" }
     sleep delay
   end
 end
