@@ -29,7 +29,7 @@ end
 
 def log_if_multiple_messages(retval)
   return unless retval['response'].size > 1
-  LOGGER.warn { "Multiple response: #{retval}" }
+  LOGGER.debug { "Multiple response: #{retval}" }
 end
 
 def t1901(shcode, delay: 5) # rubocop:disable Metrics/MethodLength
@@ -39,10 +39,10 @@ def t1901(shcode, delay: 5) # rubocop:disable Metrics/MethodLength
       log_if_multiple_messages(retval)
       price = retval['response'].last['price'].to_i
       return price unless price.zero?
-      LOGGER.error { "Price is zero. retval: #{retval}" }
-    rescue NoMethodError # rubocop:disable Lint/HandleExceptions
+      LOGGER.debug { "Price is zero. retval: #{retval}" }
+    rescue NoMethodError
     end
-    LOGGER.error { "Retry: #{retval['message']&.join(' ,') || retval}" }
+    LOGGER.debug { "Retry: #{retval['message']&.join(' ,') || retval}" }
     sleep delay
   end
 end
@@ -51,7 +51,6 @@ BOUGHT = 'bought'
 
 def traded?(record_id)
   return false unless MShard::MShard.new.get(record_id) == BOUGHT
-  # LOGGER.debug { 'Already traded.' }
   true
 end
 
@@ -76,9 +75,6 @@ end
 
 def trade(shcode, sell_or_buy, qty, record_id)
   return unless yield
-  # LOGGER.debug do
-  #   "Satisfied: #{shcode}, #{sell_or_buy}, #{qty}, #{record_id}"
-  # end
   return if traded?(record_id)
   trade_(shcode, sell_or_buy, qty)
   write_traded(shcode, sell_or_buy, qty, record_id)
@@ -137,7 +133,7 @@ loop do
     base = 8295
 
     base.step(base - 500, -5) do |price|
-      trade(:inverse, :buy, 15, :"#{price}_inv_buy_3") do
+      trade(:inverse, :buy, 15, :"#{price}_inv_buy_4") do
         inverse < price
       end
     end
@@ -145,7 +141,7 @@ loop do
     base = 8310
 
     base.step(base + 500, 5) do |price|
-      trade(:inverse, :sell, 5, :"#{price}_inv_sell_3") do
+      trade(:inverse, :sell, 5, :"#{price}_inv_sell_4") do
         inverse > price
       end
     end
