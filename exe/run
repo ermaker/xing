@@ -118,61 +118,60 @@ loop do
     redo
   end
 
-  begin
-    leverage = t1901(:leverage)
-    LOGGER.debug { "Leverage: #{leverage}" }
+  # begin
+  #   leverage = t1901(:leverage)
+  #   LOGGER.debug { "Leverage: #{leverage}" }
 
-    # base = 10200
+  #   base = 10200
 
-    # base.step(base - 500, -5) do |price|
-    #   trade(:leverage, :buy, 5, :"#{price}_lev_buy_2") do
-    #     leverage < price
-    #   end
-    # end
+  #   base.step(base - 500, -5) do |price|
+  #     trade(:leverage, :buy, 5, :"#{price}_lev_buy_2") do
+  #       leverage < price
+  #     end
+  #   end
 
-    # base = 10500
+  #   base = 10500
 
-    # base.step(base + 500, 5) do |price|
-    #   trade(:leverage, :sell, 1, :"#{price}_lev_sell_2") do
-    #     leverage > price
-    #   end
-    # end
+  #   base.step(base + 500, 5) do |price|
+  #     trade(:leverage, :sell, 1, :"#{price}_lev_sell_2") do
+  #       leverage > price
+  #     end
+  #   end
 
-    base = 10570
+  # end
 
-    base.step(base + 500, 5) do |price|
-      just_check(:leverage, :sell, 1, :"#{price}_lev_check_0") do
-        leverage > price
-      end
-    end
-  end
+  # sleep SLEEP
 
+  # begin
+  #   inverse = t1901(:inverse)
+  #   LOGGER.debug { "Inverse: #{inverse}" }
+
+  #   base = 8035
+
+  #   base.step(base - 500, -5) do |price|
+  #     trade(:inverse, :buy, 2, :"#{price}_inv_buy_14") do
+  #       inverse < price
+  #     end
+  #   end
+
+  #   base = 8035
+
+  #   base.step(base + 500, 5) do |price|
+  #     trade(:inverse, :sell, 2, :"#{price}_inv_sell_14") do
+  #       inverse > price
+  #     end
+  #   end
+
+  # end
+
+  # sleep SLEEP
+
+  check_('lev', :leverage, 10580, 5, 0)
   sleep SLEEP
 
-  begin
-    inverse = t1901(:inverse)
-    LOGGER.debug { "Inverse: #{inverse}" }
-
-    # base = 8035
-
-    # base.step(base - 500, -5) do |price|
-    #   trade(:inverse, :buy, 2, :"#{price}_inv_buy_14") do
-    #     inverse < price
-    #   end
-    # end
-
-    # base = 8035
-
-    # base.step(base + 500, 5) do |price|
-    #   trade(:inverse, :sell, 2, :"#{price}_inv_sell_14") do
-    #     inverse > price
-    #   end
-    # end
-  end
-
+  check_('inv', :inverse, 7970, 5, 0)
   sleep SLEEP
 
   check_('kakao', '035720', 96600, 100, 0)
-
   sleep SLEEP
 end
