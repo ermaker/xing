@@ -85,6 +85,30 @@ def in_time?
     Time.parse('2016-01-30 08:30:00 +0900') < Time.now
 end
 
+def just_check(shcode, sell_or_buy, qty, record_id)
+  return unless yield
+  return if traded?(record_id)
+  write_traded(shcode, sell_or_buy, qty, record_id)
+end
+
+def check_(name, shcode, base, step, label)
+
+  current_price = t1901(shcode)
+  LOGGER.debug { "#{name.capitalize}: #{current_price}" }
+
+  base.step(base - step * 100, -step * 1) do |price|
+    just_check(shcode, :ground, nil, :"#{price}_#{name}_check_ground_#{label}") do
+      current_price < price
+    end
+  end
+
+  base.step(base + step * 100, step * 1) do |price|
+    just_check(shcode, :top, nil, :"#{price}_#{name}_check_top_#{label}") do
+      current_price > price
+    end
+  end
+end
+
 SLEEP = 4
 
 loop do
@@ -94,58 +118,61 @@ loop do
     redo
   end
 
-  # if continue?
-  #   begin
-  #     leverage = t1901(:leverage)
-  #     LOGGER.debug { "Leverage: #{leverage}" }
+  begin
+    leverage = t1901(:leverage)
+    LOGGER.debug { "Leverage: #{leverage}" }
 
-  #     # if leverage > 10_000
-  #     #   notify("Leverage: #{leverage}")
-  #     #   LOGGER.info { "Leverage: #{leverage}" }
-  #     # end
+    # base = 10200
 
-  #     # base = 8920
+    # base.step(base - 500, -5) do |price|
+    #   trade(:leverage, :buy, 5, :"#{price}_lev_buy_2") do
+    #     leverage < price
+    #   end
+    # end
 
-  #     # base.step(base - 800, -10) do |price|
-  #     #   trade(:leverage, :buy, 1, :"xing_test2_#{price}") do
-  #     #     leverage < price
-  #     #   end
-  #     # end
+    # base = 10500
 
-  #     # base = 10250
+    # base.step(base + 500, 5) do |price|
+    #   trade(:leverage, :sell, 1, :"#{price}_lev_sell_2") do
+    #     leverage > price
+    #   end
+    # end
 
-  #     # base.step(base + 500, 10) do |price|
-  #     #   trade(:leverage, :sell, 1, :"#{price}_lev_sell") do
-  #     #     leverage > price
-  #     #   end
-  #     # end
-  #   end
-  # else
-  #   LOGGER.debug { 'Stopped. Passing' }
-  # end
-  #
-  # sleep SLEEP
+    base = 10570
+
+    base.step(base + 500, 5) do |price|
+      just_check(:leverage, :sell, 1, :"#{price}_lev_check_0") do
+        leverage > price
+      end
+    end
+  end
+
+  sleep SLEEP
 
   begin
     inverse = t1901(:inverse)
     LOGGER.debug { "Inverse: #{inverse}" }
 
-    base = 8295
+    # base = 8035
 
-    base.step(base - 500, -5) do |price|
-      trade(:inverse, :buy, 15, :"#{price}_inv_buy_4") do
-        inverse < price
-      end
-    end
+    # base.step(base - 500, -5) do |price|
+    #   trade(:inverse, :buy, 2, :"#{price}_inv_buy_14") do
+    #     inverse < price
+    #   end
+    # end
 
-    base = 8310
+    # base = 8035
 
-    base.step(base + 500, 5) do |price|
-      trade(:inverse, :sell, 5, :"#{price}_inv_sell_4") do
-        inverse > price
-      end
-    end
+    # base.step(base + 500, 5) do |price|
+    #   trade(:inverse, :sell, 2, :"#{price}_inv_sell_14") do
+    #     inverse > price
+    #   end
+    # end
   end
+
+  sleep SLEEP
+
+  check_('kakao', '035720', 96600, 100, 0)
 
   sleep SLEEP
 end
