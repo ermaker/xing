@@ -32,8 +32,10 @@ module Xing
         end
       end
 
+      MULTIPLE_WHITE_CODE = %w(00000)
       def log_if_multiple_messages(retval)
         return unless retval['message'].size > 1
+        return if retval['message'].all? { |msg| MULTIPLE_WHITE_CODE.include? msg[/^\[(.+?)\]/, 1] }
         logger.debug { "Multiple messages: #{retval['message'].join(', ')}" }
       end
 
