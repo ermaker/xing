@@ -27,16 +27,10 @@ def notify(contents)
   MShard::MShard.new.set_safe(pushbullet: true, type: :note, title: contents)
 end
 
-def log_if_multiple_messages(retval)
-  return unless retval['response'].size > 1
-  LOGGER.debug { "Multiple response: #{retval}" }
-end
-
 def t1901(shcode, delay: 5) # rubocop:disable Metrics/MethodLength
   loop do
     retval = Xing::API.tr(:t1901, shcode: shcode)
     begin
-      log_if_multiple_messages(retval)
       price = retval['response'].last['price'].to_i
       return price unless price.zero?
       LOGGER.debug { "Price is zero. retval: #{retval}" }
@@ -54,14 +48,14 @@ def traded?(record_id)
   true
 end
 
-def trade_(shcode, sell_or_buy, qty)
+def trade_(shcode, sell_or_buy, qty, record_id)
   LOGGER.debug { 'Try trade.' }
   retval = Xing::API.tr(
     :CSPAT00600,
     pass: ENV['ACCOUNT_PASS'],
     shcode: shcode, qty: qty, sell_or_buy: sell_or_buy)
   LOGGER.debug { "retval: #{retval}" }
-  LOGGER.info { "Trade message: #{retval['message'].join(', ')}" }
+  LOGGER.info { "Trade message: #{retval['message'].join(', ')} (#{record_id})" }
 end
 
 def write_traded(shcode, sell_or_buy, qty, record_id)
@@ -76,7 +70,7 @@ end
 def trade(shcode, sell_or_buy, qty, record_id)
   return unless yield
   return if traded?(record_id)
-  trade_(shcode, sell_or_buy, qty)
+  trade_(shcode, sell_or_buy, qty, record_id)
   write_traded(shcode, sell_or_buy, qty, record_id)
 end
 
@@ -91,11 +85,7 @@ def just_check(shcode, sell_or_buy, qty, record_id)
   write_traded(shcode, sell_or_buy, qty, record_id)
 end
 
-def check_(name, shcode, base, step, label)
-
-  current_price = t1901(shcode)
-  LOGGER.debug { "#{name.capitalize}: #{current_price}" }
-
+def check_(name, shcode, current_price, base, step, label)
   base.step(base - step * 100, -step * 1) do |price|
     just_check(shcode, :ground, nil, :"#{price}_#{name}_check_ground_#{label}") do
       current_price < price
@@ -109,7 +99,45 @@ def check_(name, shcode, base, step, label)
   end
 end
 
+class SingleStock
+  attr_reader :current_price
+
+  def initialize(name, shcode)
+    @name = name
+    @shcode = shcode
+  end
+
+  def read_current_price
+    @current_price = t1901(@shcode)
+    LOGGER.debug { "#{@name.capitalize}: #{@current_price}" }
+  end
+
+  def check(base, step, label)
+    check_(@name, @shcode, @current_price, base, step, label)
+  end
+
+  def buy(base, step, qty, label)
+    base.step(base - step * 100, -step * 1) do |price|
+      trade(@shcode, :buy, qty, :"#{price}_#{@name}_buy_#{label}") do
+        @current_price < price
+      end
+    end
+  end
+
+  def sell(base, step, qty, label)
+    base.step(base + step * 100, step * 1) do |price|
+      trade(@shcode, :sell, qty, :"#{price}_#{@name}_sell_#{label}") do
+        @current_price > price
+      end
+    end
+  end
+end
+
 SLEEP = 4
+
+kakao = SingleStock.new('kakao', '035720')
+lev = SingleStock.new('lev', :leverage)
+inv = SingleStock.new('inv', :inverse)
 
 loop do
   if in_time?
@@ -118,60 +146,20 @@ loop do
     redo
   end
 
-  # begin
-  #   leverage = t1901(:leverage)
-  #   LOGGER.debug { "Leverage: #{leverage}" }
 
-  #   base = 10200
-
-  #   base.step(base - 500, -5) do |price|
-  #     trade(:leverage, :buy, 5, :"#{price}_lev_buy_2") do
-  #       leverage < price
-  #     end
-  #   end
-
-  #   base = 10500
-
-  #   base.step(base + 500, 5) do |price|
-  #     trade(:leverage, :sell, 1, :"#{price}_lev_sell_2") do
-  #       leverage > price
-  #     end
-  #   end
-
-  # end
-
-  # sleep SLEEP
-
-  # begin
-  #   inverse = t1901(:inverse)
-  #   LOGGER.debug { "Inverse: #{inverse}" }
-
-  #   base = 8035
-
-  #   base.step(base - 500, -5) do |price|
-  #     trade(:inverse, :buy, 2, :"#{price}_inv_buy_14") do
-  #       inverse < price
-  #     end
-  #   end
-
-  #   base = 8035
-
-  #   base.step(base + 500, 5) do |price|
-  #     trade(:inverse, :sell, 2, :"#{price}_inv_sell_14") do
-  #       inverse > price
-  #     end
-  #   end
-
-  # end
-
-  # sleep SLEEP
-
-  check_('lev', :leverage, 10580, 5, 0)
+  kakao.read_current_price
+  kakao.check(95200, 100, 1)
   sleep SLEEP
 
-  check_('inv', :inverse, 7970, 5, 0)
+  lev.read_current_price
+  # lev.buy(10400, 5, 2, 3)
+  # lev.sell(10600, 5, 2, 3)
+  lev.check(10455, 5, 1)
   sleep SLEEP
 
-  check_('kakao', '035720', 96600, 100, 0)
+  inv.read_current_price
+  inv.buy(8005,5, 2, 17)
+  # inv.sell(8100,5, 2, 16)
+  inv.check(8015, 5, 1)
   sleep SLEEP
 end
