@@ -133,7 +133,7 @@ class SingleStock
   end
 end
 
-SLEEP = 4
+SLEEP = 5
 
 kakao = SingleStock.new('kakao', '035720')
 lev = SingleStock.new('lev', :leverage)
@@ -146,20 +146,19 @@ loop do
     redo
   end
 
-
   kakao.read_current_price
-  kakao.check(95200, 100, 1)
+  kakao.check(91200, 100, 0)
   sleep SLEEP
 
   lev.read_current_price
-  # lev.buy(10400, 5, 2, 3)
-  # lev.sell(10600, 5, 2, 3)
-  lev.check(10455, 5, 1)
+  # lev.buy(10400, 5, 2, 0)
+  # lev.sell(10600, 5, 2, 0)
+  lev.check(9740, 5, 0)
   sleep SLEEP
 
   inv.read_current_price
-  inv.buy(8005,5, 2, 17)
-  # inv.sell(8100,5, 2, 16)
-  inv.check(8015, 5, 1)
+  # inv.buy(8005, 5, 2, 0)
+  inv.sell(8240, 5, 5, 0)
+  inv.check(8230, 5, 0)
   sleep SLEEP
 end
