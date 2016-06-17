@@ -4,9 +4,16 @@ require 'dotenv'
 Dotenv.load
 require 'bundler/setup'
 require 'xing'
+require 'mongoid'
 
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.
+
+Mongoid.load!('mongoid.yml', :development)
+Mongoid.logger.level = Logger::DEBUG
+Mongo::Logger.logger.level = Logger::DEBUG
+
+include Xing
 
 # (If you use this, don't forget to add pry to your Gemfile!)
 require 'pry'
