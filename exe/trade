@@ -1,0 +1,109 @@
+#!/usr/bin/env ruby
+
+require 'dotenv'
+Dotenv.load
+require 'mongoid'
+require 'xing'
+require 'mshard'
+require 'time'
+require 'logger'
+require 'English'
+
+STDOUT.sync = true
+LOGGER = Logger.new(STDOUT)
+
+at_exit do
+  if error_info = $ERROR_INFO
+    LOGGER.fatal { "#{error_info}" }
+    LOGGER.fatal { "#{error_info.backtrace.join(' | ')}" }
+    # MShard::MShard.new.set_error(error_info)
+  end
+end
+
+Mongoid.load!('mongoid.yml', :development)
+Mongoid.logger.level = Logger::DEBUG
+# Mongo::Logger.logger.level = Logger::DEBUG
+
+def continue?
+  MShard::MShard.new.get(:notify) != 'stop'
+end
+
+def notify(contents)
+  MShard::MShard.new.set_safe(pushbullet: true, type: :note, title: contents)
+end
+
+def write_traded(shcode, sell_or_buy, qty, record_id)
+  MShard::MShard.new.set_safe(
+    id: record_id, contents: BOUGHT,
+    pushbullet: true, type: :note,
+    title: "#{shcode}] #{sell_or_buy} #{qty} (#{record_id})"
+  )
+  LOGGER.debug { 'Finished trade.' }
+end
+
+def in_time?
+  false
+  # Time.now < Time.parse('2016-01-30 14:30:00 +0900') &&
+  #   Time.parse('2016-01-30 08:30:00 +0900') < Time.now
+end
+
+module Xing
+  class Stock
+    def cached_price
+      $cached_price
+    end
+
+    def trade(sell_or_buy, qty)
+      # logger.debug { 'TRADE' }
+      case sell_or_buy
+      when :sell
+        $cache += cached_price * qty
+        $stock -= qty
+      when :buy
+        $cache -= cached_price * qty
+        $stock += qty
+      end
+    end
+  end
+
+  class TradeUnitTest < TradeUnit
+    def self.new_default(**option)
+      new(number: 1, name: :lev, shcode: :leverage,
+          sell_price: 100, cover_price: -50,
+          volume: 1, **option)
+    end
+
+    def initialize(*)
+      super
+      @period = 1
+    end
+
+    def sell_
+      super
+      logger.debug { "\t\t\t\t\tPROFIT: #{current_price - @option[:bought_price]}" }
+    end
+  end
+end
+
+SLEEP = 0.1
+
+Xing::TradeUnitTest::Document.all.delete
+# Xing::TradeUnitTest.new_default(buy_price: 10000).save
+$cached_price = 10000
+$cache = 0
+$stock = 0
+loop do
+  if in_time?
+    LOGGER.debug { 'in_time' }
+    sleep SLEEP * 10
+    redo
+  end
+
+  ratio = (rand - 0.5) * 2 * 0.002
+  delta = $cached_price * ratio
+  $cached_price *= ratio + 1
+  Xing::TradeUnitTest.new_default(buy_price: $cached_price + 10).save if rand(5) == 0
+  Xing::TradeUnitTest.each(&:tick)
+  LOGGER.info { "PRICE: #{$cached_price} (#{delta}) TOTAL: #{$cache + $cached_price * $stock} (Cache: #{$cache}, Stock: #{$cached_price * $stock} [#{$stock}])" }
+  sleep SLEEP
+end
