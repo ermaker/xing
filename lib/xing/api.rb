@@ -19,6 +19,10 @@ module Xing
             )
       end
 
+      def reboot
+        json(base + '/reboot')
+      end
+
       def account(idx)
         get(base + "/account/#{idx}")
       end

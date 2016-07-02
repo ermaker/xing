@@ -37,6 +37,12 @@ def t1901(shcode, delay: 5) # rubocop:disable Metrics/MethodLength
     rescue NoMethodError
     end
     LOGGER.debug { "Retry: #{retval['message']&.join(' ,') || retval}" }
+    if retval.code != 200
+      LOGGER.debug { 'Reboot' }
+      Xing::API.reboot
+      notify('Reboot')
+      sleep 50
+    end
     sleep delay
   end
 end
