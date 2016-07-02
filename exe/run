@@ -133,11 +133,15 @@ class SingleStock
   end
 end
 
-SLEEP = 5
+SLEEP = 4
 
-kakao = SingleStock.new('kakao', '035720')
+# kakao = SingleStock.new('kakao', '035720')
 lev = SingleStock.new('lev', :leverage)
 inv = SingleStock.new('inv', :inverse)
+china_h = SingleStock.new('h', '204450')
+oil = SingleStock.new('oil', '500019')
+gold = SingleStock.new('gold', '225130')
+kosdaq = SingleStock.new('kosdaq', '233160')
 
 loop do
   if in_time?
@@ -146,19 +150,35 @@ loop do
     redo
   end
 
-  kakao.read_current_price
-  kakao.check(91200, 100, 0)
-  sleep SLEEP
+  # kakao.read_current_price
+  # kakao.check(93200, 100, 5)
+  # sleep SLEEP
 
   lev.read_current_price
-  # lev.buy(10400, 5, 2, 0)
+  # lev.buy(10155, 5, 5, 2)
   # lev.sell(10600, 5, 2, 0)
-  lev.check(9740, 5, 0)
+  lev.check(10130, 5, 13)
   sleep SLEEP
 
   inv.read_current_price
   # inv.buy(8005, 5, 2, 0)
-  inv.sell(8240, 5, 5, 0)
-  inv.check(8230, 5, 0)
+  # inv.sell(8240, 5, 5, 0)
+  inv.check(8050, 5, 13)
+  sleep SLEEP
+
+  china_h.read_current_price
+  china_h.check(5420, 5, 7)
+  sleep SLEEP
+
+  oil.read_current_price
+  oil.check(16500, 50, 1)
+  sleep SLEEP
+
+  gold.read_current_price
+  gold.check(14050, 50, 4)
+  sleep SLEEP
+
+  kosdaq.read_current_price
+  kosdaq.check(10685, 5, 4)
   sleep SLEEP
 end
