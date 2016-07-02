@@ -75,8 +75,10 @@ def trade(shcode, sell_or_buy, qty, record_id)
 end
 
 def in_time?
-  Time.now < Time.parse('2016-01-30 14:30:00 +0900') &&
-    Time.parse('2016-01-30 08:30:00 +0900') < Time.now
+  Time.now < Time.parse('07:30:00 +0900') &&
+    Time.parse('07:00:00 +0900') < Time.now
+  # Time.now < Time.parse('2016-01-30 14:30:00 +0900') &&
+  #   Time.parse('2016-01-30 08:30:00 +0900') < Time.now
 end
 
 def just_check(shcode, sell_or_buy, qty, record_id)
