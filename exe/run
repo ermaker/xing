@@ -64,20 +64,20 @@ def trade_(shcode, sell_or_buy, qty, record_id)
   LOGGER.info { "Trade message: #{retval['message'].join(', ')} (#{record_id})" }
 end
 
-def write_traded(shcode, sell_or_buy, qty, record_id)
+def write_traded(name, shcode, sell_or_buy, qty, record_id)
   MShard::MShard.new.set_safe(
     id: record_id, contents: BOUGHT,
     pushbullet: true, type: :note,
-    title: "#{shcode}] #{sell_or_buy} #{qty} (#{record_id})"
+    title: "#{name}] #{sell_or_buy} #{qty} (#{record_id})"
   )
   LOGGER.debug { 'Finished trade.' }
 end
 
-def trade(shcode, sell_or_buy, qty, record_id)
+def trade(name, shcode, sell_or_buy, qty, record_id)
   return unless yield
   return if traded?(record_id)
   trade_(shcode, sell_or_buy, qty, record_id)
-  write_traded(shcode, sell_or_buy, qty, record_id)
+  write_traded(name, shcode, sell_or_buy, qty, record_id)
 end
 
 def in_time?
@@ -87,21 +87,28 @@ def in_time?
   #   Time.parse('2016-01-30 08:30:00 +0900') < Time.now
 end
 
-def just_check(shcode, sell_or_buy, qty, record_id)
+def relax
+  return if Time.parse('08:30:00 +0900') < Time.now &&
+    Time.now < Time.parse('16:00:00 +0900')
+  LOGGER.debug { 'Relax' }
+  sleep SLEEP * 50
+end
+
+def just_check(name, shcode, sell_or_buy, qty, record_id)
   return unless yield
   return if traded?(record_id)
-  write_traded(shcode, sell_or_buy, qty, record_id)
+  write_traded(name, shcode, sell_or_buy, qty, record_id)
 end
 
 def check_(name, shcode, current_price, base, step, label)
   base.step(base - step * 100, -step * 1) do |price|
-    just_check(shcode, :ground, nil, :"#{price}_#{name}_check_ground_#{label}") do
+    just_check(name, shcode, :ground, nil, :"#{price}_#{name}_check_ground_#{label}") do
       current_price < price
     end
   end
 
   base.step(base + step * 100, step * 1) do |price|
-    just_check(shcode, :top, nil, :"#{price}_#{name}_check_top_#{label}") do
+    just_check(name, shcode, :top, nil, :"#{price}_#{name}_check_top_#{label}") do
       current_price > price
     end
   end
@@ -126,7 +133,7 @@ class SingleStock
 
   def buy(base, step, qty, label)
     base.step(base - step * 100, -step * 1) do |price|
-      trade(@shcode, :buy, qty, :"#{price}_#{@name}_buy_#{label}") do
+      trade(@name, @shcode, :buy, qty, :"#{price}_#{@name}_buy_#{label}") do
         @current_price < price
       end
     end
@@ -134,7 +141,7 @@ class SingleStock
 
   def sell(base, step, qty, label)
     base.step(base + step * 100, step * 1) do |price|
-      trade(@shcode, :sell, qty, :"#{price}_#{@name}_sell_#{label}") do
+      trade(@name, @shcode, :sell, qty, :"#{price}_#{@name}_sell_#{label}") do
         @current_price > price
       end
     end
@@ -158,6 +165,8 @@ loop do
     redo
   end
 
+  relax
+
   # kakao.read_current_price
   # kakao.check(93200, 100, 5)
   # sleep SLEEP
@@ -165,28 +174,28 @@ loop do
   lev.read_current_price
   # lev.buy(10155, 5, 5, 2)
   # lev.sell(10600, 5, 2, 0)
-  lev.check(10130, 5, 13)
+  lev.check(9760, 5, 0)
   sleep SLEEP
 
   inv.read_current_price
   # inv.buy(8005, 5, 2, 0)
   # inv.sell(8240, 5, 5, 0)
-  inv.check(8050, 5, 13)
+  inv.check(8195, 5, 0)
   sleep SLEEP
 
   china_h.read_current_price
-  china_h.check(5420, 5, 7)
+  china_h.check(5230, 5, 0)
   sleep SLEEP
 
   oil.read_current_price
-  oil.check(16500, 50, 1)
+  oil.check(15200, 50, 0)
   sleep SLEEP
 
   gold.read_current_price
-  gold.check(14050, 50, 4)
+  gold.check(14800, 50, 0)
   sleep SLEEP
 
   kosdaq.read_current_price
-  kosdaq.check(10685, 5, 4)
+  kosdaq.check(10605, 5, 0)
   sleep SLEEP
 end
