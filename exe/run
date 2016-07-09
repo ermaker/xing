@@ -31,17 +31,23 @@ def t1901(shcode, delay: 5) # rubocop:disable Metrics/MethodLength
   loop do
     retval = Xing::API.tr(:t1901, shcode: shcode)
     begin
+      if %w(-4225 -4226).include?(retval['message'].last[/^\[(.*?)\]/, 1])
+        notify("Check Retval: #{retval['message'].join(', ')}")
+        Xing::API.reboot
+        sleep 90
+        next
+      end
       price = retval['response'].last['price'].to_i
       return price unless price.zero?
       LOGGER.debug { "Price is zero. retval: #{retval}" }
     rescue NoMethodError
     end
-    LOGGER.debug { "Retry: #{retval['message']&.join(' ,') || retval}" }
+    LOGGER.debug { "Retry: #{retval['message']&.join(', ') || retval}" }
     if retval.code != 200
       LOGGER.debug { 'Reboot' }
       Xing::API.reboot
       notify('Reboot')
-      sleep 50
+      sleep 90
     end
     sleep delay
   end
