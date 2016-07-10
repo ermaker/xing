@@ -27,28 +27,41 @@ def notify(contents)
   MShard::MShard.new.set_safe(pushbullet: true, type: :note, title: contents)
 end
 
+def notify_if_important(retval)
+  return unless retval.key? 'message'
+  if [*%w(-4225 -4226 -10054), '   -2'].include?(retval['message'].last[/^\[(.*?)\]/, 1])
+    notify("Check Retval: #{retval['message'].join(', ')}")
+  end
+end
+
+def price_(retval)
+  retval['response'].last['price'].to_i
+end
+
+def price?(retval)
+  retval.key?('response') &&
+    retval['response'].last.key?('price')
+end
+
+def reboot_if_need(retval)
+  if retval.code != 200
+    LOGGER.debug { 'Reboot' }
+    Xing::API.reboot
+    notify('Reboot')
+    sleep 90
+  end
+end
+
 def t1901(shcode, delay: 5) # rubocop:disable Metrics/MethodLength
   loop do
     retval = Xing::API.tr(:t1901, shcode: shcode)
-    begin
-      if %w(-4225 -4226).include?(retval['message'].last[/^\[(.*?)\]/, 1])
-        notify("Check Retval: #{retval['message'].join(', ')}")
-        Xing::API.reboot
-        sleep 90
-        next
-      end
-      price = retval['response'].last['price'].to_i
-      return price unless price.zero?
-      LOGGER.debug { "Price is zero. retval: #{retval}" }
-    rescue NoMethodError
+    notify_if_important(retval)
+    return price_(retval) if price?(retval) && !price_(retval).zero?
+    if price?(retval) && price_(retval).zero?
+      LOGGER.debug { 'Retry: Price is zero.' }
     end
     LOGGER.debug { "Retry: #{retval['message']&.join(', ') || retval}" }
-    if retval.code != 200
-      LOGGER.debug { 'Reboot' }
-      Xing::API.reboot
-      notify('Reboot')
-      sleep 90
-    end
+    reboot_if_need(retval)
     sleep delay
   end
 end

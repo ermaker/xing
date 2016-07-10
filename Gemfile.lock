@@ -32,6 +32,7 @@ GEM
     ast (2.3.0)
     bson (4.1.1)
     builder (3.2.2)
+    byebug (9.0.5)
     coderay (1.1.1)
     diff-lcs (1.2.5)
     dotenv (2.1.1)
@@ -134,6 +135,7 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 1.10)
+  byebug
   guard
   guard-rspec
   guard-rubocop
@@ -145,4 +147,4 @@ DEPENDENCIES
   xing!
 
 BUNDLED WITH
-   1.12.4
+   1.12.5
