@@ -56,7 +56,7 @@ module Xing
         logger.warn { "Check: #{retval}" }
       end
 
-      TR_WHITE_CODE = %w(00000 00039 00040)
+      TR_WHITE_CODE = [*%w(00000 00039 00040 -10054 -4225 -4226), '   -2']
 
       def tr(tr_name, **args)
         manipulate_shcode(args)
