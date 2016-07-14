@@ -4,4 +4,5 @@ xing:
   environment:
     - constraint:node==stable
     - MSHARD_URI=$MSHARD_URI
+    - SLACK_WEBHOOK_URI=$SLACK_WEBHOOK_URI
   restart: always

@@ -16,6 +16,12 @@ at_exit do
     LOGGER.fatal { "#{error_info}" }
     LOGGER.fatal { "#{error_info.backtrace.join(' | ')}" }
     MShard::MShard.new.set_error(error_info)
+    MShard::MShard.new.set_safe(
+      slack: true, webhook_url: ENV['SLACK_WEBHOOK_URI'],
+      channel: 'stock', text: "Error: #{error_info}", attachments: [
+        { title: 'Backtrace', text: error_info.backtrace.join("\n") }
+      ]
+    )
   end
 end
 
@@ -24,7 +30,11 @@ def continue?
 end
 
 def notify(contents)
-  MShard::MShard.new.set_safe(pushbullet: true, type: :note, title: contents)
+  MShard::MShard.new.set_safe(
+    pushbullet: true, type: :note, title: contents,
+    slack: true, webhook_url: ENV['SLACK_WEBHOOK_URI'],
+    channel: 'stock', text: contents
+  )
 end
 
 def notify_if_important(retval)
@@ -88,7 +98,9 @@ def write_traded(name, shcode, sell_or_buy, qty, record_id)
   MShard::MShard.new.set_safe(
     id: record_id, contents: BOUGHT,
     pushbullet: true, type: :note,
-    title: "#{name}] #{sell_or_buy} #{qty} (#{record_id})"
+    title: "#{name}] #{sell_or_buy} #{qty} (#{record_id})",
+    slack: true, webhook_url: ENV['SLACK_WEBHOOK_URI'],
+    channel: 'stock', text: "#{name}] #{sell_or_buy} #{qty} (#{record_id})"
   )
   LOGGER.debug { 'Finished trade.' }
 end
