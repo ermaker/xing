@@ -194,28 +194,28 @@ loop do
   lev.read_current_price
   # lev.buy(10155, 5, 5, 2)
   # lev.sell(10600, 5, 2, 0)
-  lev.check(9880, 5, 2)
+  lev.check(10350, 5, 6)
   sleep SLEEP
 
   inv.read_current_price
   # inv.buy(8005, 5, 2, 0)
   # inv.sell(8240, 5, 5, 0)
-  inv.check(8145, 5, 2)
+  inv.check(7985, 5, 6)
   sleep SLEEP
 
   china_h.read_current_price
-  china_h.check(5220, 5, 2)
+  china_h.check(5700, 5, 6)
   sleep SLEEP
 
   oil.read_current_price
-  oil.check(14400, 50, 2)
+  oil.check(14150, 50, 6)
   sleep SLEEP
 
   gold.read_current_price
-  gold.check(14500, 50, 2)
+  gold.check(14000, 50, 6)
   sleep SLEEP
 
   kosdaq.read_current_price
-  kosdaq.check(10800, 5, 2)
+  kosdaq.check(10980, 5, 6)
   sleep SLEEP
 end
