@@ -38,7 +38,7 @@ def notify(contents)
 end
 
 def notify_if_important(retval)
-  return unless retval.key? 'message' && !retval['message'].empty?
+  return unless retval.key?('message') && !retval['message'].empty?
   if [*%w(-4225 -4226 -10054), '   -2'].include?(retval['message'].last[/^\[(.*?)\]/, 1])
     notify("Check Retval: #{retval['message'].join(', ')}")
   end
