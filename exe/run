@@ -15,7 +15,7 @@ at_exit do
   if error_info = $ERROR_INFO
     LOGGER.fatal { "#{error_info}" }
     LOGGER.fatal { "#{error_info.backtrace.join(' | ')}" }
-    MShard::MShard.new.set_error(error_info)
+    # MShard::MShard.new.set_error(error_info)
     MShard::MShard.new.set_safe(
       slack: true, webhook_url: ENV['SLACK_WEBHOOK_URI'],
       channel: 'stock', text: "Error: #{error_info}", attachments: [
@@ -31,7 +31,7 @@ end
 
 def notify(contents)
   MShard::MShard.new.set_safe(
-    pushbullet: true, type: :note, title: contents,
+    # pushbullet: true, type: :note, title: contents,
     slack: true, webhook_url: ENV['SLACK_WEBHOOK_URI'],
     channel: 'stock', text: contents
   )
@@ -39,7 +39,7 @@ end
 
 def notify_if_important(retval)
   return unless retval.key?('message') && !retval['message'].empty?
-  if [*%w(-4225 -4226 -10054), '   -2'].include?(retval['message'].last[/^\[(.*?)\]/, 1])
+  if [*%w(-4226 -10054), '   -2'].include?(retval['message'].last[/^\[(.*?)\]/, 1])
     notify("Check Retval: #{retval['message'].join(', ')}")
   end
 end
@@ -57,8 +57,8 @@ end
 def reboot_if_need(retval)
   if retval.code != 200
     LOGGER.debug { 'Reboot' }
-    Xing::API.reboot
-    notify('Reboot')
+    response = Xing::API.reboot['response'] == 'success'
+    notify("Reboot: #{response}")
     sleep 90
   end
 end
@@ -97,8 +97,8 @@ end
 def write_traded(name, shcode, sell_or_buy, qty, record_id)
   MShard::MShard.new.set_safe(
     id: record_id, contents: BOUGHT,
-    pushbullet: true, type: :note,
-    title: "#{name}] #{sell_or_buy} #{qty} (#{record_id})",
+    # pushbullet: true, type: :note,
+    # title: "#{name}] #{sell_or_buy} #{qty} (#{record_id})",
     slack: true, webhook_url: ENV['SLACK_WEBHOOK_URI'],
     channel: 'stock', text: "#{name}] #{sell_or_buy} #{qty} (#{record_id})"
   )
@@ -206,28 +206,28 @@ loop do
   lev.read_current_price
   # lev.buy(10155, 5, 5, 2)
   # lev.sell(10600, 5, 2, 0)
-  lev.check(10350, 5, 6)
+  lev.check(10550, 5, 19)
   sleep SLEEP
 
   inv.read_current_price
   # inv.buy(8005, 5, 2, 0)
   # inv.sell(8240, 5, 5, 0)
-  inv.check(7985, 5, 6)
+  inv.check(7895, 5, 19)
   sleep SLEEP
 
   china_h.read_current_price
-  china_h.check(5700, 5, 6)
+  china_h.check(5900, 5, 19)
   sleep SLEEP
 
   oil.read_current_price
-  oil.check(14150, 50, 6)
+  oil.check(10750, 50, 19)
   sleep SLEEP
 
   gold.read_current_price
-  gold.check(14000, 50, 6)
+  gold.check(14300, 50, 19)
   sleep SLEEP
 
   kosdaq.read_current_price
-  kosdaq.check(10980, 5, 6)
+  kosdaq.check(10705, 5, 19)
   sleep SLEEP
 end
